@@ -9,7 +9,36 @@
   "devDependencies": {
     "nuxt": "3.0.0-rc.4"
   },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {},
+    "compilerOptions": {
+      "jsx": "preserve"
+    },
+    "rules": {
+      "no-unused-vars": "warn",
+      "vue/no-unused-vars": "warn",
+      "vue/no-unused-components": "warn",
+      "semi": 1
+    }
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "semi": true,
+    "singleQuote": true
+  },
   "dependencies": {
-    "@nuxtjs/axios": "^5.13.6"
+    "@nuxtjs/axios": "^5.13.6",
+    "@vueuse/core": "^8.7.4",
+    "@vueuse/integrations": "^8.7.4",
+    "@vueuse/nuxt": "^8.7.4",
+    "tachyons": "^4.12.0"
   }
 }
