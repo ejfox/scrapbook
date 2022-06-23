@@ -1,6 +1,6 @@
 <template>
   <Head>
-    <Body class="bg-red pa4" />
+    <Body class="pa4" />
   </Head>
   <main class="">
     <slot />

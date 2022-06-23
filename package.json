@@ -39,6 +39,11 @@
     "@vueuse/core": "^8.7.4",
     "@vueuse/integrations": "^8.7.4",
     "@vueuse/nuxt": "^8.7.4",
-    "tachyons": "^4.12.0"
+    "are.na": "^0.1.5",
+    "d3": "^7.4.4",
+    "lodash": "^4.17.21",
+    "node-pinboard": "^2.0.1",
+    "tachyons": "^4.12.0",
+    "twitter-api-v2": "^1.12.2"
   }
 }
