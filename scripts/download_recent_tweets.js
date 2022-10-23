@@ -1,9 +1,17 @@
 const fs = require('fs');
-const axios = require('axios')
+const axios = require('axios');
 const apiKey = 'PBDpC3kbIYMD9vEeARXhIY8Cf';
 const apiKeySecret = '9jsNXncLWeUnDpjxdETHHkAxeLzBhLhUzAIOTtD2dirkQo6Mu2';
 const bearerToken =
   'AAAAAAAAAAAAAAAAAAAAAAw7eAEAAAAA%2By%2F4vh%2F5%2BbVWENbv72kFrqzrrio%3Db439vjiE4wO2OnYdqOv3FHHMlui0GKESxyw29pKicrQVihM5Jw';
+
+// go through all tweets and add tags using openAI
+const { Configuration, OpenAIApi } = require('openai');
+
+const configuration = new Configuration({
+  apiKey: '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',
+});
+const openai = new OpenAIApi(configuration);
 
 const $mrejfox = '10449';
 
@@ -26,14 +34,10 @@ async function getUserTimeline(userId) {
   const appOnlyClient = new TwitterApi(bearerToken);
 
   const userTimeline = await appOnlyClient.v2.userTimeline($mrejfox, {
-    'tweet.fields': ['created_at', 'public_metrics'],
-    expansions: [
-      'attachments.media_keys',
-      'referenced_tweets.id',
-    ],
-    'media.fields': ['url', 'width', 'height', 'preview_image_url'],
+    'tweet.fields': ['created_at', 'public_metrics', 'lang'],
+    expansions: ['attachments.media_keys', 'referenced_tweets.id'],
+    'media.fields': ['url', 'preview_image_url']
   });
-
   const includes = new TwitterV2IncludesHelper(userTimeline);
 
   const allTweets = [];
@@ -47,8 +51,8 @@ async function getUserTimeline(userId) {
 
     // Now if we were cool, we would download all of the mediaUrls into a folder of images with the filenames as the media_key with axios
     allTweets.push(fetchedTweet);
-    console.log(fetchedTweet);
   }
+
 
   // write allTweets to file
   fs.writeFileSync(
@@ -57,7 +61,7 @@ async function getUserTimeline(userId) {
   );
 }
 
-getUserTimeline();
+getUserTimeline($mrejfox);
 
 //https://stackoverflow.com/questions/12740659/downloading-images-with-node-js
 
@@ -66,11 +70,11 @@ const download_image = (url, image_path) =>
     url,
     responseType: 'stream',
   }).then(
-    response =>
+    (response) =>
       new Promise((resolve, reject) => {
         response.data
           .pipe(fs.createWriteStream(image_path))
           .on('finish', () => resolve())
-          .on('error', e => reject(e));
-      }),
+          .on('error', (e) => reject(e));
+      })
   );

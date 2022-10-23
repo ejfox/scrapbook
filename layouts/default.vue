@@ -1,8 +1,10 @@
 <template>
-  <Head>
-    <Body class="pa4" />
-  </Head>
-  <main class="">
-    <slot />
-  </main>
+  <div>
+    <Head>
+      <Body class="" />
+    </Head>
+    <main class="">
+      <slot />
+    </main>
+  </div>
 </template>
