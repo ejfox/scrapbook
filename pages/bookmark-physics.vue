@@ -110,12 +110,7 @@ function CanvasManager(canvas, { width, height }) {
   this.drawBodies = function (bodies) {
     // this.context.clearRect(0, 0, this.width, this.height);
     // clear rect accounting for scale
-    this.context.clearRect(
-      0,
-      0,
-      this.width * this.scale,
-      this.height * this.scale
-    );
+    this.context.clearRect(0, 0, 10000, 10000);
     this.context.beginPath();
     bodies.forEach((body) => {
       const id = body.id;
@@ -140,7 +135,7 @@ function CanvasManager(canvas, { width, height }) {
       //   body.bounds.max.y - body.bounds.min.y
       // );
 
-      this.context.font = '5px Arial';
+      this.context.font = '9px Arial';
       this.context.fillStyle = 'black';
       // this.context.fillText(text, body.position.x, body.position.y);
       // we need to do some artificial line-wrapping
@@ -149,8 +144,8 @@ function CanvasManager(canvas, { width, height }) {
       // and then split the text into lines
       // and then draw each line
       const lines = [];
-      const lineLength = 10;
-      const lineHeight = 5;
+      const lineLength = 14;
+      const lineHeight = 8;
       for (let i = 0; i < text.length; i += lineLength) {
         lines.push(text.substring(i, i + lineLength));
       }
@@ -247,7 +242,7 @@ onMounted(() => {
       Runner.run(runner, engine.value);
       Events.on(runner, 'tick', (event) => {
         // console.log('tick', event);
-        canvasManager.drawDebugRect();
+        // canvasManager.drawDebugRect();
         canvasManager.drawBodies(bodies.value);
       });
     }
@@ -265,11 +260,11 @@ watch(
 
     // create an engine
     engine.value = Engine.create({
-      positionIterations: 1000,
-      constraintIterations: 1000,
+      // positionIterations: 1000,
+      // constraintIterations: 1000,
       gravity: {
-        x: 1,
-        y: 1,
+        x: 0,
+        y: 0,
         scale: 0.1,
       },
     });
@@ -287,16 +282,35 @@ watch(
     // });
 
     // create a body for each item
-    everythingCombined.value.slice(0, 10).forEach((item) => {
-      const randomPos = {
-        x: Math.random() * width.value,
-        y: Math.random() * height.value,
-      };
-      // const body = Bodies.rectangle(10, 10, 10, 10, {
-      const body = Bodies.rectangle(randomPos.x, randomPos.y, 10, 10, {
-        isStatic: false,
-      });
-      World.add(world.value, body);
+    // everythingCombined.value.slice(0, 1000).forEach((item) => {
+    //   const randomPos = {
+    //     x: Math.random() * width.value,
+    //     y: Math.random() * height.value,
+    //   };
+    //   // const body = Bodies.rectangle(10, 10, 10, 10, {
+    //   const body = Bodies.rectangle(randomPos.x, randomPos.y, 100, 300, {
+    //     isStatic: false,
+    //   });
+    //   World.add(world.value, body);
+    // });
+
+    // every tick add another body from everythingCombined
+    let i = 0;
+    Events.on(runner.value, 'tick', (event) => {
+      // console.log('tick', event);
+      if (i < everythingCombined.value.length) {
+        const item = everythingCombined.value[i];
+        const randomPos = {
+          x: Math.random() * width.value,
+          y: Math.random() * height.value,
+        };
+        // const body = Bodies.rectangle(10, 10, 10, 10, {
+        const body = Bodies.rectangle(randomPos.x, randomPos.y, 30, 70, {
+          isStatic: false,
+        });
+        World.add(world.value, body);
+        i++;
+      }
     });
   },
   { immediate: true }
