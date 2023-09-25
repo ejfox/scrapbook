@@ -1,72 +1,48 @@
-const Pinboard = require('node-pinboard').default;
-const api_token = 'ejfox:6BCADA7AD389C5F5D7CE';
-const _ = require('lodash');
-// import fs and writefilesync from the fs module
-const fs = require('fs');
+const fs = require('fs').promises;
+const moment = require('moment');
+const axios = require('axios');
+require('dotenv').config();
 
-const pinboard = new Pinboard(api_token);
+const pinboardAPI = 'https://api.pinboard.in/v1';
+const api_token = process.env.PINBOARD_API_TOKEN;
 
-// pinboard.all().then(res => {
-//   console.log(res);
-// });
+async function gatherBookmarksForWeek(fromDate, toDate) {
+  const fromDateString = moment(fromDate).format('YYYY-MM-DDTHH:mm:ss') + "Z";
+  const toDateString = moment(toDate).format('YYYY-MM-DDTHH:mm:ss') + "Z";
+  console.log('Scraping from ' + fromDateString + ' to ' + toDateString);
+  const filePath = `./public/data/pinboard_bookmarks/${fromDateString}_${toDateString}.json`;
 
-// For the signed in user, grab a list of all the dates where bookmarks were added (this also tells us the number added for each day)
-pinboard.dates().then((res) => {
-  const pinboardManifest = res;
-  // write pinboard manifest to data/pinboard_manifest.json
-  // we will use this later to scrape bookmarks for every day
-  fs.writeFileSync(
-    './public/data/pinboard_manifest.json',
-    JSON.stringify(pinboardManifest)
-  );
-
-  // Now that the manifest is written, let's grab them one by one
-  politeScrapeFromManifest(pinboardManifest);
-});
-
-function gatherBookmarksFromManifest(pinboardManifest, date) {
-  // a pinboardManifest looks like this:
-  // {
-  //         '2010-12-16': 3,
-  //         '2010-12-15': 2,
-  //         '2010-12-13': 1,
-  //}
-
-  // get the date
-  const date_str = date;
-  console.log('Scraping ' + date_str);
-  // check if file for date_str already exists
-  if (fs.existsSync('./public/data/pinboard_bookmarks/' + date_str + '.json')) {
-    console.log('already exists');
+  try {
+    await fs.access(filePath);
+    console.log('File already exists');
     return;
-  }
-  const dateString = new Date(date_str).toISOString();
+  } catch (error) {
+    try {
+      // Make a GET request to the Pinboard API
+      const queryUrl = `${pinboardAPI}/posts/all?auth_token=${api_token}&fromdt=${fromDateString}&todt=${toDateString}&format=json`;
+      console.log('Making API request...', queryUrl);
+      const res = await axios.get(queryUrl);
+      console.log('Returned from API ☑️');
 
-  console.log('formatted date, getting', dateString);
-  pinboard.get({ dt: dateString}).then((res) => {
-    console.log(date_str + ' returned from API ☑️');
-    // write the bookmarks to data/pinboard_bookmarks_<date>.json
-    fs.writeFileSync(
-      './public/data/pinboard_bookmarks_' + date_str + '.json',
-      JSON.stringify(res)
-    );
-  });
-}
-
-let datesCounted = 0;
-function politeScrapeFromManifest(pinboardManifest) {
-  // instead of using _.each, use a count to keep track of how many dates we've scraped and use setTimeout to wait 10 seconds before scraping the next date
-  const dateCount = _.size(pinboardManifest.dates);
-
-  setTimeout(function () {
-    if (datesCounted < dateCount) {
-      const date = _.keys(pinboardManifest.dates)[datesCounted];
-      gatherBookmarksFromManifest(pinboardManifest, date);
-      datesCounted++;
-
-      politeScrapeFromManifest(pinboardManifest)
-    } else {
-      console.log('done');
+      // clean up the filepath to be a better file path (no weird characters)
+      const cleanFilePath = filePath.replace(/:/g, '-');
+      await fs.writeFile(cleanFilePath, JSON.stringify(res.data));
+    } catch (error) {
+      console.error(`Error getting bookmarks for date range ${fromDateString} to ${toDateString}: `, error);
     }
-  }, 5000);
+  }
 }
+
+async function politeScrapeForYear() {
+  const endDate = moment();
+  const startDate = moment().subtract(1, 'years');
+
+  for (let weekStartDate = startDate; weekStartDate.isBefore(endDate); weekStartDate.add(1, 'weeks')) {
+    const weekEndDate = moment(weekStartDate).add(1, 'weeks');
+    await gatherBookmarksForWeek(weekStartDate.toDate(), weekEndDate.toDate());
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+  console.log('done');
+}
+
+politeScrapeForYear();
