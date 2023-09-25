@@ -12,47 +12,25 @@
     </div> -->
 
     <div class="important-tags tl">
-      <div
-        v-for="tag in sortedTagMap"
-        :key="tag.tag"
-        :class="['dib pa1', tag.tagIDs.length > 25 ? 'o-50' : 'o-10']"
-        @click="setFocusTags([tag.tag])"
-      >
+      <div v-for="tag in sortedTagMap" :key="tag.tag" :class="['dib pa1', tag.tagIDs.length > 25 ? 'o-50' : 'o-10']"
+        @click="setFocusTags([tag.tag])">
         {{ tag.tag }} ({{ tag.tagIDs.length }})
       </div>
     </div>
 
     <div class="focus-tags fixed bottom-4 left-4 bg-white dark-gray f4">
-      <div
-        v-for="tag in state.focusedTags"
-        :key="tag"
-        class="dib pa1"
-        @click="removeFocusTags(tag)"
-      >
+      <div v-for="tag in state.focusedTags" :key="tag" class="dib pa1" @click="removeFocusTags(tag)">
         {{ tag }}
       </div>
     </div>
     <div class="list-container tc">
-      <div
-        v-for="[key, week] in everythingGroupedByWeek"
-        class="mv4 w-100 w-third-ns mr4 dib v-top tl"
-      >
+      <div v-for="[key, week] in everythingGroupedByWeek" class="mv4 w-100 w-third-ns mr4 dib v-top tl">
         <h2 class="f3 bb o-20">Week of {{ format(key, 'MMM do, yyyy') }}</h2>
-        <div
-          v-for="item in week"
-          :key="item.id"
-          :id="'item-' + item.id"
-          class="scrapbook-item"
-          :style="{
-            opacity: itemOpacity(item),
-            display: isItemFocused(item) ? 'block' : 'none',
-          }"
-        >
-          <ScrapbookItem
-            :item="item"
-            class="mb3"
-            @setFocusTags="setFocusTags"
-          />
+        <div v-for="item in week" :key="item.id" :id="'item-' + item.id" class="scrapbook-item" :style="{
+          opacity: itemOpacity(item),
+          display: isItemFocused(item) ? 'block' : 'none',
+        }">
+          <ScrapbookItem :item="item" class="mb3" @setFocusTags="setFocusTags" />
         </div>
       </div>
     </div>
@@ -61,9 +39,6 @@
 
 <script setup>
 import * as d3 from 'd3';
-import TestComponent from '../components/TestComponent.vue';
-import GitHubIssues from '../components/GitHubIssues.vue';
-import PinboardBookmarks from '../components/PinboardBookmarks.vue';
 import axios from 'axios';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import { format } from 'date-fns';
@@ -275,6 +250,7 @@ function itemOpacity(item) {
 .app-container {
   /* font-size: 10px; */
 }
+
 .list-container {
   /* display: grid;
   gap: 0.5rem;
