@@ -1,9 +1,7 @@
 const fs = require('fs')
-const arenaUID = "V74Pxg6DdH-lc1NFalndlcXz0ke7EUHylqYIl_a9qps";
-const secret = "LFVVErlr5Yzb5IUG0ap6jutGKSdWizM0JmgZQi_ooR8";
-const accessToken = "xty9YjYnwcRiBw2Lna1_2akBRIAIJjA8rM4sRwJxqM0"
-
-
+const arenaUID = process.env.ARENA_ID
+const secret = process.env.ARENA_SECRET
+const accessToken = process.env.ARENA_ACCESS_TOKEN
 
 const Arena = require('are.na')
 const arena = new Arena({accessToken})

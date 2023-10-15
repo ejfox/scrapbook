@@ -9,7 +9,7 @@ const limiter = new RateLimiter({
 });
 
 const configuration = new Configuration({
-  apiKey: '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',
+  apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
