@@ -108,7 +108,9 @@ let pinboardBookmarks = JSON.parse(
 // },
 
 let tweets = JSON.parse(
-  fs.readFileSync('./public/data/all_tweets_tagged.json', 'utf8')
+  // fs.readFileSync('./public/data/all_tweets_tagged.json', 'utf8')
+  fs.readFileSync('./public/data/tweets_all.json', 'utf8')
+
 );
 
 // TWEETS LOOK LIKE THIS
@@ -238,7 +240,7 @@ pinboardBookmarks = pinboardBookmarks.map((d) => {
 
 tweets = tweets.map((d) => {
   d.type = 'tweet';
-  d.tags = d.gpt3Tags;
+  d.tags = d?.gpt3Tags;
   return d;
 });
 
