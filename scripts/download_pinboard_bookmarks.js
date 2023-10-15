@@ -3,6 +3,8 @@ const moment = require('moment');
 const axios = require('axios');
 require('dotenv').config();
 
+const WAIT_BETWEEN_REQUESTS = 2500; // ms
+
 const pinboardAPI = 'https://api.pinboard.in/v1';
 const api_token = process.env.PINBOARD_API_TOKEN;
 
@@ -37,10 +39,23 @@ async function politeScrapeForYear() {
   const endDate = moment();
   const startDate = moment().subtract(1, 'years');
 
+  // Get the list of already downloaded files
+  const files = await fs.readdir('./public/data/pinboard_bookmarks');
+
   for (let weekStartDate = startDate; weekStartDate.isBefore(endDate); weekStartDate.add(1, 'weeks')) {
     const weekEndDate = moment(weekStartDate).add(1, 'weeks');
+    const fromDateString = moment(weekStartDate).format('YYYY-MM-DDTHH:mm:ss') + "Z";
+    const toDateString = moment(weekEndDate).format('YYYY-MM-DDTHH:mm:ss') + "Z";
+    const fileName = `${fromDateString}_${toDateString}.json`.replace(/:/g, '-');
+
+    // Check if the file for this week already exists
+    if (files.includes(fileName)) {
+      console.log(`File ${fileName} already exists, skipping...`);
+      continue;
+    }
+
     await gatherBookmarksForWeek(weekStartDate.toDate(), weekEndDate.toDate());
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, WAIT_BETWEEN_REQUESTS));
   }
   console.log('done');
 }
